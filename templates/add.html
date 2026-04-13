@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Food</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="page-wrapper">
+    <header class="topbar premium-topbar">
+        <div class="container topbar-inner">
+            <div>
+                <h1 class="brand-title">Add Food</h1>
+                <p class="brand-subtitle">Add a meal to your tracker</p>
+            </div>
+            <a href="/" class="btn btn-light-back">← Back Home</a>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7">
+                <div class="dashboard-card form-card">
+                    <h2 class="section-title text-center mb-2">New Food Entry</h2>
+                    <p class="section-subtitle text-center mb-4">Fill in the details below.</p>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Food Name</label>
+                            <input type="text" name="name" class="form-control custom-input" placeholder="e.g. Apple" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Calories</label>
+                            <input type="number" name="calories" class="form-control custom-input" placeholder="e.g. 95" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Category</label>
+                            <select name="category" class="form-control custom-input" required>
+                                <option value="">Select category</option>
+                                <option value="Breakfast">Breakfast</option>
+                                <option value="Lunch">Lunch</option>
+                                <option value="Dinner">Dinner</option>
+                                <option value="Snack">Snack</option>
+                                <option value="Drink">Drink</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-main">Save Food</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

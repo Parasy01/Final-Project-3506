@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="page-wrapper">
+    <header class="topbar premium-topbar">
+        <div class="container topbar-inner">
+            <div>
+                <h1 class="brand-title">Calorie Tracker</h1>
+                <p class="brand-subtitle">Smart meal logging with progress insights</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <button id="themeToggle" class="btn btn-light-back" type="button">🌙 Dark Mode</button>
+                <a href="/add" class="btn btn-add">+ Add Food</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-4 py-md-5">
+        <div class="status-banner {{ status_type }}">
+            {{ status_message }}
+        </div>
+
+        <section class="mb-4">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="dashboard-card stat-card blue-card">
+                        <p class="card-label">Total Calories</p>
+                        <h2 class="stat-number">{{ total }}</h2>
+                        <p class="card-note">Calories tracked today</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="dashboard-card stat-card green-card">
+                        <p class="card-label">Food Items</p>
+                        <h2 class="stat-number">{{ count }}</h2>
+                        <p class="card-note">Meals added</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="dashboard-card stat-card orange-card">
+                        <p class="card-label">Remaining</p>
+                        <h2 class="stat-number">{{ remaining }}</h2>
+                        <p class="card-note">Calories left</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="dashboard-card goal-card">
+                        <div class="goal-header">
+                            <p class="card-label mb-0">Daily Goal</p>
+                            <span class="goal-badge">{{ progress }}%</span>
+                        </div>
+                        <h3 class="goal-value">{{ total }} / {{ goal }} cal</h3>
+                        <div class="custom-progress">
+                            <div class="custom-progress-bar" style="width: {{ progress }}%;"></div>
+                        </div>
+                        <p class="card-note mt-3">Keep going — every meal counts.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="row g-4 mb-4">
+            <div class="col-lg-7">
+                <div class="dashboard-card h-100 premium-panel">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Food Log</h2>
+                            <p class="section-subtitle">Search and manage your meals</p>
+                        </div>
+                        <span class="items-pill">{{ count }} items</span>
+                    </div>
+
+                    <form method="GET" action="/" class="mb-4">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control custom-input" placeholder="Search food or category..." value="{{ search }}">
+                            <button class="btn btn-main" type="submit">Search</button>
+                        </div>
+                    </form>
+
+                    {% if foods %}
+                    <div class="table-responsive">
+                        <table class="table custom-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Food</th>
+                                    <th>Category</th>
+                                    <th>Calories</th>
+                                    <th>Date</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for food in foods %}
+                                <tr>
+                                    <td class="text-muted">{{ food[0] }}</td>
+                                    <td class="fw-semibold">{{ food[1] }}</td>
+                                    <td><span class="category-badge">{{ food[4] or 'Other' }}</span></td>
+                                    <td><span class="calorie-badge">{{ food[2] }} cal</span></td>
+                                    <td>{{ food[3] or 'N/A' }}</td>
+                                    <td class="text-end">
+                                        <a href="/edit/{{ food[0] }}" class="btn btn-action btn-edit">Edit</a>
+                                        <a href="/delete/{{ food[0] }}" class="btn btn-action btn-delete"
+                                           onclick="return confirm('Are you sure you want to delete this food item?');">Delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-box">
+                        <h4>No matching food found</h4>
+                        <p>Try another search or add a new meal entry.</p>
+                        <a href="/add" class="btn btn-main">Add Food</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="dashboard-card h-100 premium-panel">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Calories Chart</h2>
+                            <p class="section-subtitle">Food calorie breakdown with percentages</p>
+                        </div>
+                    </div>
+
+                    {% if foods %}
+                    <div class="chart-wrap">
+                        <canvas id="calorieChart"></canvas>
+                    </div>
+                    {% else %}
+                    <div class="empty-box">
+                        <h4>No chart data yet</h4>
+                        <p>Add food entries to visualize calories.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer-note text-center mt-4">
+            <p>Calorie Tracker Dashboard • Built with Flask, SQLite, Bootstrap, and Chart.js</p>
+        </footer>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+{% if foods %}
+<script>
+    const labels = {{ chart_labels | tojson }};
+    const dataValues = {{ chart_data | tojson }};
+
+    const chartCanvas = document.getElementById("calorieChart");
+
+    if (chartCanvas && Array.isArray(labels) && Array.isArray(dataValues) && labels.length > 0) {
+        new Chart(chartCanvas, {
+            type: "doughnut",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Calories",
+                    data: dataValues,
+                    backgroundColor: [
+                        "#3b82f6",
+                        "#8b5cf6",
+                        "#10b981",
+                        "#f59e0b",
+                        "#ef4444",
+                        "#06b6d4"
+                    ],
+                    borderColor: "#ffffff",
+                    borderWidth: 4,
+                    hoverOffset: 10
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "62%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            color: document.documentElement.getAttribute("data-bs-theme") === "dark" ? "#cbd5e1" : "#475569",
+                            padding: 18,
+                            usePointStyle: true,
+                            pointStyle: "circle",
+                            font: {
+                                size: 13,
+                                weight: "600"
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = context.dataset.data.reduce((sum, val) => sum + val, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${context.label}: ${value} cal (${percentage}%)`;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        color: "#ffffff",
+                        font: {
+                            weight: "bold",
+                            size: 12
+                        },
+                        formatter: function(value, context) {
+                            const total = context.dataset.data.reduce((sum, val) => sum + val, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return percentage + "%";
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endif %}
+
+<script>
+    const toggleBtn = document.getElementById("themeToggle");
+    const htmlEl = document.documentElement;
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme) {
+        htmlEl.setAttribute("data-bs-theme", savedTheme);
+    }
+
+    function updateThemeButton() {
+        if (htmlEl.getAttribute("data-bs-theme") === "dark") {
+            toggleBtn.textContent = "☀ Light Mode";
+        } else {
+            toggleBtn.textContent = "🌙 Dark Mode";
+        }
+    }
+
+    toggleBtn.addEventListener("click", function () {
+        const currentTheme = htmlEl.getAttribute("data-bs-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        htmlEl.setAttribute("data-bs-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        updateThemeButton();
+    });
+
+    updateThemeButton();
+</script>
+
+</body>
+</html>
